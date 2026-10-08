@@ -1,0 +1,257 @@
+// datasource and generator
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CUSTOMER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CARD
+  UPI
+  NET_BANKING
+  COD
+  MOCK
+}
+
+enum AddressType {
+  HOME
+  OFFICE
+  OTHER
+}
+
+model User {
+  id           String    @id @default(uuid())
+  fullName     String    @map("full_name") @db.VarChar(120)
+  email        String    @unique @db.VarChar(255)
+  passwordHash String    @map("password_hash")
+  role         UserRole  @default(CUSTOMER)
+  giftPoints   Int       @default(0) @map("gift_points")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  cart                    Cart?
+  addresses               Address[]
+  orders                  Order[]
+  giftPointsTransactions  GiftPointsTransaction[]
+  wishlist                Wishlist?
+
+  @@map("users")
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String    @db.VarChar(100)
+  slug        String    @unique @db.VarChar(120)
+  description String?
+  imageUrl    String?   @map("image_url")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  products Product[]
+
+  @@map("categories")
+}
+
+model Brand {
+  id        String    @id @default(uuid())
+  name      String    @db.VarChar(150)
+  slug      String    @unique @db.VarChar(160)
+  logoUrl   String?   @map("logo_url")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  products Product[]
+
+  @@map("brands")
+}
+
+model Product {
+  id                   String   @id @default(uuid())
+  title                String   @db.VarChar(255)
+  author               String   @db.VarChar(180)
+  description          String?
+  isbn                 String?  @unique @db.VarChar(30)
+  price                Decimal  @db.Decimal(10, 2)
+  discountPercent      Decimal  @default(0) @map("discount_percent") @db.Decimal(5, 2)
+  stockQuantity        Int      @default(0) @map("stock_quantity")
+  format               String?  @default("Paperback") @db.VarChar(30)
+  coverImageUrl        String?  @map("cover_image_url")
+  tentativeDeliveryDate DateTime? @map("tentative_delivery_date")
+  rating               Decimal  @default(0) @db.Decimal(2, 1)
+  reviewCount          Int      @default(0) @map("review_count")
+  categoryId           String   @map("category_id")
+  brandId              String   @map("brand_id")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @default(now()) @updatedAt @map("updated_at")
+
+  category      Category       @relation(fields: [categoryId], references: [id])
+  brand         Brand          @relation(fields: [brandId], references: [id])
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+  wishlistItems WishlistItem[]
+
+  @@map("products")
+}
+
+model Address {
+  id            String      @id @default(uuid())
+  userId        String      @map("user_id")
+  label         AddressType @default(HOME)
+  recipientName String      @map("recipient_name") @db.VarChar(120)
+  phone         String      @db.VarChar(20)
+  line1         String      @db.VarChar(255)
+  line2         String?     @db.VarChar(255)
+  city          String      @db.VarChar(100)
+  state         String      @db.VarChar(100)
+  postalCode    String      @map("postal_code") @db.VarChar(15)
+  country       String      @default("India") @db.VarChar(100)
+  isDefault     Boolean     @default(false) @map("is_default")
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders Order[]
+
+  @@map("addresses")
+}
+
+model Cart {
+  id        String     @id @default(uuid())
+  userId    String     @unique @map("user_id")
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items CartItem[]
+
+  @@map("carts")
+}
+
+model CartItem {
+  id        String   @id @default(uuid())
+  cartId    String   @map("cart_id")
+  productId String   @map("product_id")
+  quantity  Int
+  unitPrice Decimal  @map("unit_price") @db.Decimal(10, 2)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  cart    Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([cartId, productId])
+  @@map("cart_items")
+}
+
+model Order {
+  id              String      @id @default(uuid())
+  userId          String      @map("user_id")
+  addressId       String      @map("address_id")
+  status          OrderStatus @default(PENDING)
+  subtotal        Decimal     @db.Decimal(10, 2)
+  discountAmount  Decimal     @default(0) @map("discount_amount") @db.Decimal(10, 2)
+  giftPointsUsed  Int         @default(0) @map("gift_points_used")
+  shippingAmount  Decimal     @default(0) @map("shipping_amount") @db.Decimal(10, 2)
+  totalAmount     Decimal     @map("total_amount") @db.Decimal(10, 2)
+  createdAt       DateTime    @default(now()) @map("created_at")
+  confirmedAt     DateTime?   @map("confirmed_at")
+  cancelledAt     DateTime?   @map("cancelled_at")
+
+  user    User      @relation(fields: [userId], references: [id])
+  address Address   @relation(fields: [addressId], references: [id])
+  items   OrderItem[]
+  payment Payment?
+  giftPointsTransactions GiftPointsTransaction[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id           String  @id @default(uuid())
+  orderId      String  @map("order_id")
+  productId    String  @map("product_id")
+  productTitle String  @map("product_title") @db.VarChar(255)
+  quantity     Int
+  unitPrice    Decimal @map("unit_price") @db.Decimal(10, 2)
+  lineTotal    Decimal @map("line_total") @db.Decimal(10, 2)
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+model Payment {
+  id                   String        @id @default(uuid())
+  orderId              String        @unique @map("order_id")
+  method               PaymentMethod
+  status               PaymentStatus @default(PENDING)
+  transactionReference String?       @map("transaction_reference") @db.VarChar(120)
+  amount               Decimal       @db.Decimal(10, 2)
+  createdAt            DateTime      @default(now()) @map("created_at")
+  updatedAt            DateTime      @updatedAt @map("updated_at")
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+model GiftPointsTransaction {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  orderId   String?  @map("order_id")
+  points    Int
+  reason    String   @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order Order? @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@map("gift_points_transactions")
+}
+
+model Wishlist {
+  id        String         @id @default(uuid())
+  userId    String         @unique @map("user_id")
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt @map("updated_at")
+
+  user  User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items WishlistItem[]
+
+  @@map("wishlists")
+}
+
+model WishlistItem {
+  id         String   @id @default(uuid())
+  wishlistId String   @map("wishlist_id")
+  productId  String   @map("product_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  wishlist Wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+  product  Product  @relation(fields: [productId], references: [id])
+
+  @@unique([wishlistId, productId])
+  @@map("wishlist_items")
+}
