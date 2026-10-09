@@ -141,9 +141,9 @@ function OrderCard({ order }) {
 
         {/* ── Expanded item list ── */}
         {expanded && (
-          <div className="mt-3 border border-[#3a3a3a] rounded-lg overflow-hidden">
+          <div className="mt-3 border border-[#3a3a3a] rounded-lg overflow-hidden overflow-x-auto">
             {/* Table header */}
-            <div className="grid grid-cols-[1fr_auto_auto] gap-x-4 px-4 py-2 bg-[#1e1e1e] border-b border-[#3a3a3a]">
+            <div className="grid grid-cols-[1fr_auto_auto] gap-x-4 px-4 py-2 bg-[#1e1e1e] border-b border-[#3a3a3a] min-w-[280px]">
               <span className="text-[10px] uppercase tracking-wider text-gray-500">Book</span>
               <span className="text-[10px] uppercase tracking-wider text-gray-500 text-center">Qty</span>
               <span className="text-[10px] uppercase tracking-wider text-gray-500 text-right">Price</span>
@@ -251,7 +251,7 @@ export default function OrderHistoryPage() {
 
   return (
     <div className="min-h-screen bg-[#1a1a1a]">
-      <div className="max-w-3xl mx-auto px-6 py-8">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
 
         {/* Page header */}
         <div className="flex items-center justify-between mb-2">

@@ -79,14 +79,14 @@ function CartItemCard({ item }) {
   }
 
   return (
-    <div className="flex gap-5">
-      {/* Portrait cover (2:3) */}
+    <div className="flex gap-3 sm:gap-5">
+      {/* Portrait cover (2:3) — smaller on mobile */}
       <div className="shrink-0">
-        <BookCoverArt product={item.product} width={160} height={240} />
+        <BookCoverArt product={item.product} width={100} height={150} />
       </div>
 
       {/* Info */}
-      <div className="flex-1 min-w-0 max-w-[260px] flex flex-col gap-1.5">
+      <div className="flex-1 min-w-0 flex flex-col gap-1.5">
         <Link
           to={`/products/${item.productId}`}
           className="text-[18px] font-normal text-white hover:text-blue-300 transition-colors leading-tight line-clamp-2 no-underline"
@@ -197,7 +197,7 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-bw-bg">
-      <div className="w-full px-4 py-4">
+      <div className="w-full px-3 sm:px-4 py-4">
 
         {/* Breadcrumb */}
         <nav className="text-[12px] mb-4 flex flex-wrap items-center gap-1.5">
@@ -213,18 +213,18 @@ export default function CartPage() {
 
         <h1 className="text-[16px] font-normal text-white mb-3">Shopping Cart</h1>
 
-        {/* One panel holds all cart items, two per row */}
-        <div className="bg-bw-card rounded-lg p-6 mb-3">
-          <div className="grid grid-cols-2 gap-x-8 gap-y-8">
+        {/* One panel holds all cart items */}
+        <div className="bg-bw-card rounded-lg p-4 sm:p-6 mb-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-8">
             {items.map(item => <CartItemCard key={item.id} item={item} />)}
           </div>
         </div>
 
         {/* Bottom: Address + Grand Total */}
-        <div className="grid grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] gap-3">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] gap-3">
 
           {/* Address */}
-          <div className="bg-bw-card rounded-lg p-6">
+          <div className="bg-bw-card rounded-lg p-4 sm:p-6">
             <h2 className="text-[16px] font-normal text-white mb-4">Address</h2>
             <label className="flex items-center gap-2 text-[13px] text-bw-muted mb-5 cursor-pointer w-fit">
               <input
@@ -234,7 +234,7 @@ export default function CartPage() {
               Use Saved Address
             </label>
 
-            <div className="grid grid-cols-4 gap-x-3 gap-y-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-3 gap-y-4">
               <div>
                 <label className={labelCls}>First Name</label>
                 <input placeholder="First Name" className={inputCls} />

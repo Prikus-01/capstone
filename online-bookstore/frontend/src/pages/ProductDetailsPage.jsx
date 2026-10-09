@@ -108,7 +108,7 @@ export default function ProductDetailsPage() {
 
   return (
     <div className="min-h-screen bg-bw-bg">
-      <div className="w-full px-6 py-5">
+      <div className="w-full px-4 sm:px-6 py-5">
 
         {/* Breadcrumb */}
         <nav className="text-[12px] mb-4 flex flex-wrap items-center gap-1.5">
@@ -125,15 +125,15 @@ export default function ProductDetailsPage() {
           <span className="text-white">{product.title}</span>
         </nav>
 
-        {/* ── 3-column main grid ── */}
-        <div className="grid grid-cols-[auto_1fr_280px] gap-6 items-start">
+        {/* ── Main grid: stacks on mobile, 3 cols on lg ── */}
+        <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] lg:grid-cols-[auto_1fr_280px] gap-6 items-start">
 
           {/* ── Col 1: Cover ── */}
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 items-center md:items-start">
             <div className="relative">
               <BookCoverArt product={product} width={200} height={270} />
-              {/* Quote overlay */}
-              <div className="absolute top-3 right-[-60px] w-[130px] bg-bw-bg/80 rounded px-2 py-1.5 text-[9px] text-bw-muted italic leading-snug pointer-events-none">
+              {/* Quote overlay — hidden on small screens to avoid overflow */}
+              <div className="hidden lg:block absolute top-3 right-[-60px] w-[130px] bg-bw-bg/80 rounded px-2 py-1.5 text-[9px] text-bw-muted italic leading-snug pointer-events-none">
                 "A refreshing path to clarity<br />in a cluttered world."
               </div>
             </div>
@@ -265,8 +265,8 @@ export default function ProductDetailsPage() {
             </div>
           </div>
 
-          {/* ── Col 3: Related Reads ── */}
-          <div className="flex flex-col gap-4">
+          {/* ── Col 3: Related Reads — full width on mobile/tablet, sidebar on lg ── */}
+          <div className="flex flex-col gap-4 md:col-span-2 lg:col-span-1">
             <h2 className="text-[15px] font-semibold text-white">Related Reads</h2>
             {related.length === 0 ? (
               <p className="text-[12px] text-bw-muted">No related books found.</p>
@@ -331,7 +331,7 @@ export default function ProductDetailsPage() {
         {/* ── Reviews ── */}
         <div className="mt-8">
           <h2 className="text-[15px] font-semibold text-white mb-4">Reviews</h2>
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
             {/* Leave a review */}
             <div className="flex flex-col gap-2">

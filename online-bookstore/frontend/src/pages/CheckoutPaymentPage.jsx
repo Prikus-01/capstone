@@ -132,28 +132,28 @@ export default function CheckoutPaymentPage() {
 
   return (
     /* ── full-page dark-blue background with floating books ── */
-    <div className="min-h-screen relative flex items-center justify-center overflow-hidden"
+    <div className="min-h-screen relative flex items-center justify-center overflow-hidden px-4 py-6"
          style={{ backgroundColor: '#173a5e' }}>
 
       <FloatingBooks />
 
       {/* ── modal card ── */}
-      <div className="relative z-10 w-[580px] rounded-lg overflow-hidden shadow-2xl"
+      <div className="relative z-10 w-full max-w-[580px] rounded-lg overflow-hidden shadow-2xl"
            style={{ backgroundColor: '#2a2a2a' }}>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-bw-border">
+        <div className="flex flex-wrap items-center justify-between gap-2 px-4 sm:px-5 py-4 border-b border-bw-border">
           <span className="text-[15px] font-semibold text-white">Complete Payment</span>
           <span className="text-[15px] font-semibold text-white">
             Payable Amount: ₹{Math.round(total)}
           </span>
         </div>
 
-        {/* Body: left tab sidebar + right form */}
-        <div className="flex" style={{ minHeight: 200 }}>
+        {/* Body: method tabs + form — stacks on mobile */}
+        <div className="flex flex-col sm:flex-row" style={{ minHeight: 200 }}>
 
-          {/* Left: method tabs */}
-          <div className="w-[130px] shrink-0 border-r border-bw-border py-2">
+          {/* Left: method tabs — horizontal scroll on mobile */}
+          <div className="sm:w-[130px] sm:shrink-0 border-b sm:border-b-0 sm:border-r border-bw-border py-2 flex sm:flex-col overflow-x-auto">
             {TABS.map(tab => (
               <button
                 key={tab.id}
@@ -170,7 +170,7 @@ export default function CheckoutPaymentPage() {
           </div>
 
           {/* Right: form */}
-          <div className="flex-1 px-5 py-5">
+          <div className="flex-1 px-4 sm:px-5 py-4 sm:py-5">
 
             {(activeTab === 'CARD' || activeTab === 'DEBIT') && (
               <div className="flex flex-col gap-3">

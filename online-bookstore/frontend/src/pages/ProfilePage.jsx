@@ -21,7 +21,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#1a1a1a] max-w-xl mx-auto px-6 py-8">
+    <div className="min-h-screen bg-[#1a1a1a] max-w-xl mx-auto px-4 sm:px-6 py-8">
       <h1 className="text-xl font-bold text-white mb-6">My Profile</h1>
 
       <div className="bg-[#242424] border border-[#3a3a3a] rounded-xl p-6 mb-4">

@@ -6,7 +6,7 @@ import { useAuth } from '../features/auth/auth.store';
 import ProductCard from '../components/product/ProductCard';
 import { ProductCardSkeleton } from '../components/common/Skeleton';
 import Footer from '../components/layout/Footer';
-import { Search, ChevronDown } from 'lucide-react';
+import { Search, ChevronDown, SlidersHorizontal, X as XIcon } from 'lucide-react';
 
 const SIDEBAR_CATEGORIES = [
   { label: 'All',                    slug: null },
@@ -38,7 +38,7 @@ function FilterDropdown({ label, value, options, onChange }) {
     <div className="relative shrink-0">
       <button
         onClick={() => setOpen(o => !o)}
-        className="flex flex-col items-start bg-bw-surface border border-bw-border rounded px-2 h-[36px] justify-center cursor-pointer min-w-[100px]"
+        className="flex flex-col items-start bg-bw-surface border border-bw-border rounded px-2 h-[36px] justify-center cursor-pointer min-w-[90px]"
       >
         <span className="text-[9px] text-bw-muted leading-none whitespace-nowrap">{label}</span>
         <div className="flex items-center gap-1 mt-0.5">
@@ -72,7 +72,7 @@ function SectionRow({ title, products, loading }) {
     return (
       <div className="mb-6">
         <h2 className="text-[15px] font-semibold text-white mb-3">{title}</h2>
-        <div className="grid grid-cols-3 gap-x-6 gap-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
           {[0, 1, 2].map(i => <ProductCardSkeleton key={i} />)}
         </div>
       </div>
@@ -82,7 +82,7 @@ function SectionRow({ title, products, loading }) {
   return (
     <div className="mb-6">
       <h2 className="text-[15px] font-semibold text-white mb-3">{title}</h2>
-      <div className="grid grid-cols-3 gap-x-6 gap-y-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
         {products.slice(0, 3).map(p => <ProductCard key={p.id} product={p} />)}
       </div>
     </div>
@@ -95,6 +95,7 @@ export default function HomePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeCategory, setActiveCategory] = useState('All');
   const [localSearch, setLocalSearch] = useState(searchParams.get('search') || '');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   /* filter values */
   const search   = searchParams.get('search')   || '';
@@ -168,16 +169,37 @@ export default function HomePage() {
 
   const handleCategoryClick = (item) => {
     setActiveCategory(item.label);
+    setSidebarOpen(false);
     if (!item.slug) { navigate('/catalogue'); return; }
     const found = categories.find(c => c.slug === item.slug || c.name.toLowerCase() === item.label.toLowerCase());
     navigate(found ? `/categories/${found.slug}` : `/categories/${item.slug}`);
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-44px)] bg-bw-bg">
+    <div className="flex min-h-[calc(100vh-44px)] bg-bw-bg relative">
+
+      {/* ── Mobile sidebar overlay ── */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 z-40 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
 
       {/* ── Left sidebar ── */}
-      <div className="w-sidebar min-w-sidebar border-r border-bw-border bg-bw-bg pt-1 overflow-y-auto shrink-0">
+      <div className={`
+        fixed top-[44px] left-0 h-[calc(100vh-44px)] z-50 md:static md:z-auto
+        w-[200px] min-w-[200px] border-r border-bw-border bg-bw-bg pt-1 overflow-y-auto shrink-0
+        transition-transform duration-200
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+      `}>
+        {/* Close button — mobile only */}
+        <div className="flex items-center justify-between px-4 py-2 md:hidden border-b border-bw-border mb-1">
+          <span className="text-[12px] text-bw-muted">Categories</span>
+          <button onClick={() => setSidebarOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888' }}>
+            <XIcon size={16} />
+          </button>
+        </div>
         {SIDEBAR_CATEGORIES.map(item => {
           const active = activeCategory === item.label;
           return (
@@ -197,23 +219,32 @@ export default function HomePage() {
       </div>
 
       {/* ── Right column: filter bar + content ── */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
 
         {/* Filter bar */}
-        <div className="flex items-center gap-2 px-3 py-2 border-b border-bw-border bg-bw-bg shrink-0">
+        <div className="flex items-center gap-2 px-3 py-2 border-b border-bw-border bg-bw-bg shrink-0 flex-wrap">
+
+          {/* Mobile: categories toggle button */}
+          <button
+            className="md:hidden flex items-center gap-1.5 bg-bw-surface border border-bw-border rounded px-2 h-[36px] text-[11px] text-bw-text shrink-0"
+            onClick={() => setSidebarOpen(true)}
+          >
+            <SlidersHorizontal size={12} />
+            Categories
+          </button>
 
           {/* Search */}
           <form
             onSubmit={handleSearch}
-            className="flex items-center bg-bw-bg border border-bw-border rounded px-2 h-[36px] gap-2 flex-1"
+            className="flex items-center bg-bw-bg border border-bw-border rounded px-2 h-[36px] gap-2 flex-1 min-w-[120px]"
           >
             <div className="flex flex-col flex-1 min-w-0">
-              <span className="text-[9px] text-bw-muted leading-none">Search you want to read here</span>
+              <span className="text-[9px] text-bw-muted leading-none hidden sm:block">Search you want to read here</span>
               <input
                 type="text"
                 value={localSearch}
                 onChange={e => setLocalSearch(e.target.value)}
-                placeholder="Search"
+                placeholder="Search books..."
                 className="bg-transparent border-none outline-none text-[11px] text-bw-text placeholder-bw-dim leading-none mt-0.5 w-full"
               />
             </div>
@@ -222,55 +253,58 @@ export default function HomePage() {
             </button>
           </form>
 
-          <FilterDropdown
-            label="Language"
-            value={searchParams.get('language') || 'All'}
-            options={[
-              { label: 'All', value: '' },
-              { label: 'English', value: 'english' },
-              { label: 'Hindi', value: 'hindi' },
-              { label: 'Tamil', value: 'tamil' },
-            ]}
-            onChange={v => setParam('language', v)}
-          />
+          {/* Filter dropdowns — hidden on very small screens, visible from sm */}
+          <div className="hidden sm:flex items-center gap-2 flex-wrap">
+            <FilterDropdown
+              label="Language"
+              value={searchParams.get('language') || 'All'}
+              options={[
+                { label: 'All', value: '' },
+                { label: 'English', value: 'english' },
+                { label: 'Hindi', value: 'hindi' },
+                { label: 'Tamil', value: 'tamil' },
+              ]}
+              onChange={v => setParam('language', v)}
+            />
 
-          <FilterDropdown
-            label="Format (Paperback, ebook etc)"
-            value={format || 'All'}
-            options={[
-              { label: 'All', value: '' },
-              { label: 'Paperback', value: 'Paperback' },
-              { label: 'eBook', value: 'eBook' },
-              { label: 'Hardcover', value: 'Hardcover' },
-              { label: 'Hard Cover', value: 'Hard Cover' },
-            ]}
-            onChange={v => setParam('format', v)}
-          />
+            <FilterDropdown
+              label="Format"
+              value={format || 'All'}
+              options={[
+                { label: 'All', value: '' },
+                { label: 'Paperback', value: 'Paperback' },
+                { label: 'eBook', value: 'eBook' },
+                { label: 'Hardcover', value: 'Hardcover' },
+                { label: 'Hard Cover', value: 'Hard Cover' },
+              ]}
+              onChange={v => setParam('format', v)}
+            />
 
-          <FilterDropdown
-            label="Price Range"
-            value={priceLabel()}
-            options={[
-              { label: 'All', value: '' },
-              { label: 'Under ₹200', value: 'under200' },
-              { label: '₹200–₹500', value: '200-500' },
-              { label: '₹500–₹1000', value: '500-1000' },
-              { label: 'Above ₹1000', value: 'above1000' },
-            ]}
-            onChange={handlePriceRange}
-          />
+            <FilterDropdown
+              label="Price Range"
+              value={priceLabel()}
+              options={[
+                { label: 'All', value: '' },
+                { label: 'Under ₹200', value: 'under200' },
+                { label: '₹200–₹500', value: '200-500' },
+                { label: '₹500–₹1000', value: '500-1000' },
+                { label: 'Above ₹1000', value: 'above1000' },
+              ]}
+              onChange={handlePriceRange}
+            />
 
-          <FilterDropdown
-            label="Sort by"
-            value={sortLabel()}
-            options={[
-              { label: 'Relevance', value: '' },
-              { label: 'Price: Low–High', value: 'price_asc' },
-              { label: 'Price: High–Low', value: 'price_desc' },
-              { label: 'Top Rated', value: 'rating' },
-            ]}
-            onChange={v => setParam('sort', v)}
-          />
+            <FilterDropdown
+              label="Sort by"
+              value={sortLabel()}
+              options={[
+                { label: 'Relevance', value: '' },
+                { label: 'Price: Low–High', value: 'price_asc' },
+                { label: 'Price: High–Low', value: 'price_desc' },
+                { label: 'Top Rated', value: 'rating' },
+              ]}
+              onChange={v => setParam('sort', v)}
+            />
+          </div>
 
           {hasFilters && (
             <button
@@ -284,7 +318,7 @@ export default function HomePage() {
 
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto flex flex-col">
-          <div className="flex-1 px-6 py-4">
+          <div className="flex-1 px-4 sm:px-6 py-4">
 
             {/* Filtered results */}
             {hasFilters && (
@@ -296,7 +330,7 @@ export default function HomePage() {
                   <p className="text-red-400 text-[13px] mb-3">Failed to load books.</p>
                 )}
                 {filteredLoading ? (
-                  <div className="grid grid-cols-3 gap-x-6 gap-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
                     {Array.from({ length: 9 }).map((_, i) => <ProductCardSkeleton key={i} />)}
                   </div>
                 ) : filtered.length === 0 ? (
@@ -310,7 +344,7 @@ export default function HomePage() {
                     </button>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-3 gap-x-6 gap-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
                     {filtered.map(p => <ProductCard key={p.id} product={p} />)}
                   </div>
                 )}

@@ -65,9 +65,9 @@ export default function CheckoutAddressPage() {
   if (isLoading) return <div className="flex justify-center pt-20"><Spinner /></div>;
 
   return (
-    <div className="min-h-screen bg-[#1a1a1a] max-w-2xl mx-auto px-6 py-8">
+    <div className="min-h-screen bg-[#1a1a1a] max-w-2xl mx-auto px-4 sm:px-6 py-8">
       {/* Stepper */}
-      <div className="flex items-center gap-4 mb-8 text-sm">
+      <div className="flex items-center gap-2 sm:gap-4 mb-8 text-sm flex-wrap">
         <div className="flex items-center gap-2 text-blue-400 font-medium"><div className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs">1</div>Address</div>
         <div className="flex-1 h-px bg-[#3a3a3a]" />
         <div className="flex items-center gap-2 text-gray-500"><div className="w-6 h-6 rounded-full bg-[#333] flex items-center justify-center text-xs">2</div>Payment</div>

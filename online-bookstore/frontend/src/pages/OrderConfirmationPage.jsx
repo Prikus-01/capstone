@@ -140,13 +140,13 @@ export default function OrderConfirmationPage() {
 
   return (
     /* ── same dark-blue background with floating books ── */
-    <div className="min-h-screen relative flex items-center justify-center overflow-hidden py-10"
+    <div className="min-h-screen relative flex items-center justify-center overflow-hidden py-10 px-4"
          style={{ backgroundColor: '#173a5e' }}>
 
       <FloatingBooks />
 
       {/* ── modal card ── */}
-      <div className="relative z-10 w-[640px] rounded-lg shadow-2xl px-8 py-8 flex flex-col items-center"
+      <div className="relative z-10 w-full max-w-[640px] rounded-lg shadow-2xl px-4 sm:px-8 py-8 flex flex-col items-center"
            style={{ backgroundColor: '#2a2a2a' }}>
 
         {/* Green check circle */}
@@ -161,8 +161,8 @@ export default function OrderConfirmationPage() {
           Your purchase of the<br />following reads is successful
         </p>
 
-        {/* Books grid — 2 per row */}
-        <div className="w-full grid grid-cols-2 gap-x-6 gap-y-5 mb-7">
+        {/* Books grid — 1 col mobile, 2 cols sm+ */}
+        <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 mb-7">
           {order.items.map(item => (
             <PurchasedBookCard key={item.id} item={item} />
           ))}
